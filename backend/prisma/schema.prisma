@@ -1,0 +1,41 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Request {
+  id           Int       @id @default(autoincrement())
+  subscriberId Int?
+  phoneNumber  String
+  isp          String
+  dataBundle   String
+  amount       Float
+  reference    String?   @unique
+  status       String?   @default("pending")
+  treatedBy    Int?
+  createdAt    DateTime? @default(now())
+  updatedAt    DateTime? @default(now())
+
+  treatedUser User? @relation("TreatedRequests", fields: [treatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subscriber  User? @relation("SubscriberRequests", fields: [subscriberId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("Requests")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  username      String    @unique(map: "sqlite_autoindex_Users_1")
+  password_hash String
+  role          String
+  createdAt     DateTime? @default(now())
+
+  requests   Request[] @relation("SubscriberRequests")
+  treatments Request[] @relation("TreatedRequests")
+
+  @@map("Users")
+}
