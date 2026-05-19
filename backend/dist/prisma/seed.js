@@ -21,6 +21,7 @@ const ISP_BUNDLES = [
     { network: '9mobile', size: '7GB', price: 2500 },
     { network: '9mobile', size: '15GB', price: 4000 }
 ];
+import { encryptConfig } from '../src/utils/encryption.js';
 async function seed() {
     console.log("Starting seed for ISP Bundles...");
     for (const bundle of ISP_BUNDLES) {
@@ -71,21 +72,21 @@ async function seed() {
             displayName: 'Monnify',
             isActive: true,
             isDefault: true,
-            config: JSON.stringify({
+            config: encryptConfig(JSON.stringify({
                 apiKey: process.env.MONNIFY_API_KEY || "",
                 secretKey: process.env.MONNIFY_SECRET_KEY || "",
                 contractCode: process.env.MONNIFY_CONTRACT_CODE || "",
                 isSandbox: process.env.MONNIFY_IS_SANDBOX !== 'false'
-            })
+            }))
         },
         {
             name: 'paystack',
             displayName: 'Paystack',
             isActive: true,
             isDefault: false,
-            config: JSON.stringify({
+            config: encryptConfig(JSON.stringify({
                 secretKey: process.env.PAYSTACK_SECRET_KEY || ""
-            })
+            }))
         }
     ];
     for (const gw of gateways) {

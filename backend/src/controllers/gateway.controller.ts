@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { prisma } from '../config/db.js';
 import logger from '../config/logger.js';
+import { encryptConfig, decryptConfig } from '../utils/encryption.js';
 
 // Get active gateways for checkout flow selection
 export const getActiveGateways = async (req: Request, res: Response) => {
@@ -27,7 +28,11 @@ export const getAdminGateways = async (req: Request, res: Response) => {
     const gateways = await prisma.paymentGateway.findMany({
       orderBy: { id: 'asc' }
     });
-    res.json(gateways);
+    const decryptedGateways = gateways.map(gw => ({
+      ...gw,
+      config: decryptConfig(gw.config)
+    }));
+    res.json(decryptedGateways);
   } catch (error: any) {
     logger.error({ err: error }, 'Failed to fetch admin gateways');
     res.status(500).json({ error: 'Internal Server Error' });
@@ -54,6 +59,9 @@ export const updateGateway = async (req: Request, res: Response) => {
       return res.status(444).json({ error: 'Gateway not found' });
     }
 
+    const configString = config !== undefined ? (typeof config === 'string' ? config : JSON.stringify(config)) : undefined;
+    const encryptedConfig = configString !== undefined ? encryptConfig(configString) : undefined;
+
     // If setting as default, we must unset isDefault for all other gateways
     if (isDefault) {
       await prisma.$transaction([
@@ -66,7 +74,7 @@ export const updateGateway = async (req: Request, res: Response) => {
           data: {
             isActive: true, // A default gateway must be active
             isDefault: true,
-            config: typeof config === 'string' ? config : JSON.stringify(config)
+            config: encryptedConfig
           }
         })
       ]);
@@ -89,7 +97,7 @@ export const updateGateway = async (req: Request, res: Response) => {
         data: {
           isActive: isActive !== undefined ? isActive : gateway.isActive,
           isDefault: false,
-          config: config !== undefined ? (typeof config === 'string' ? config : JSON.stringify(config)) : gateway.config
+          config: encryptedConfig !== undefined ? encryptedConfig : gateway.config
         }
       });
     }
@@ -98,7 +106,12 @@ export const updateGateway = async (req: Request, res: Response) => {
       where: { id: gatewayId }
     });
 
-    res.json({ message: 'Gateway updated successfully', gateway: updated });
+    const decryptedUpdated = updated ? {
+      ...updated,
+      config: decryptConfig(updated.config)
+    } : null;
+
+    res.json({ message: 'Gateway updated successfully', gateway: decryptedUpdated });
   } catch (error: any) {
     logger.error({ err: error }, 'Failed to update gateway settings');
     res.status(500).json({ error: error.message });

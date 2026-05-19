@@ -3,9 +3,27 @@ import { Prisma } from '../generated/prisma/client.js';
 import type { InitializePaymentInput, VerifyPaymentParams } from '../schemas/payment.schema.js';
 import { prisma } from '../config/db.js';
 import logger from '../config/logger.js';
+import { decryptConfig } from '../utils/encryption.js';
 
-const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY
-if (!PAYSTACK_SECRET_KEY) throw new Error('PAYSTACK_SECRET_KEY is not defined');
+const getPaystackConfig = async () => {
+  const gateway = await prisma.paymentGateway.findUnique({
+    where: { name: 'paystack' }
+  });
+
+  let secretKey = process.env.PAYSTACK_SECRET_KEY || "";
+
+  if (gateway && gateway.config) {
+    try {
+      const decrypted = decryptConfig(gateway.config);
+      const parsed = JSON.parse(decrypted);
+      if (parsed.secretKey) secretKey = parsed.secretKey;
+    } catch (e) {
+      logger.error({ err: e }, 'Failed to parse Paystack DB config, falling back to ENV');
+    }
+  }
+
+  return { secretKey };
+};
 
 function validateNigerianPhone(phone: string) {
   const normalized = String(phone).replace(/^\+?234/, '0').replace(/\s+/g, '');
@@ -35,10 +53,16 @@ export const initializePayment = async (req: Request<{}, {}, InitializePaymentIn
     const subscriberId = req.user ? req.user.id : null;
     const email = req.user ? req.user.username + '@datasub.com' : `guest_${validatedPhone}@datasub.com`;
     logger.info({ email }, 'Email');
+
+    const { secretKey } = await getPaystackConfig();
+    if (!secretKey) {
+      return res.status(400).json({ error: 'Paystack Secret Key is not configured.' });
+    }
+
     const response = await fetch('https://api.paystack.co/transaction/initialize', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
+        Authorization: `Bearer ${secretKey}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -72,10 +96,15 @@ export const verifyPayment = async (req: Request<VerifyPaymentParams>, res: Resp
     const existing = await prisma.request.findUnique({ where: { reference } });
     if (existing) return res.status(400).json({ error: 'Transaction already verified' });
 
+    const { secretKey } = await getPaystackConfig();
+    if (!secretKey) {
+      return res.status(400).json({ error: 'Paystack Secret Key is not configured.' });
+    }
+
     const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`
+        Authorization: `Bearer ${secretKey}`
       }
     });
 

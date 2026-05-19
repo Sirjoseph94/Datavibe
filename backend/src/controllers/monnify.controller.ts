@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { Prisma } from '../generated/prisma/client.js';
 import { prisma } from '../config/db.js';
 import logger from '../config/logger.js';
+import { decryptConfig } from '../utils/encryption.js';
 
 // Helper to validate Nigerian phone numbers
 function validateNigerianPhone(phone: string) {
@@ -25,7 +26,8 @@ const getMonnifyConfig = async () => {
 
   if (gateway && gateway.config) {
     try {
-      const parsed = JSON.parse(gateway.config);
+      const decrypted = decryptConfig(gateway.config);
+      const parsed = JSON.parse(decrypted);
       if (parsed.apiKey) apiKey = parsed.apiKey;
       if (parsed.secretKey) secretKey = parsed.secretKey;
       if (parsed.contractCode) contractCode = parsed.contractCode;
