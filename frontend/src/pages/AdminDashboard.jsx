@@ -1,13 +1,14 @@
-import { useState, useEffect, useContext, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { Loader2, LogOut, CheckCircle, ChevronLeft, ChevronRight, Search, Filter } from 'lucide-react';
+import { Loader2, LogOut, CheckCircle, ChevronLeft, ChevronRight, Search, Filter, Sun, Moon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import NetworkLogo from '../components/NetworkLogo.jsx';
 
 const PAGE_SIZE = 10;
 const ISP_OPTIONS = ['', 'MTN', 'Airtel', 'Glo', '9mobile'];
 
 export default function AdminDashboard() {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, theme, toggleTheme } = useContext(AuthContext);
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('ALL');
@@ -24,9 +25,8 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchRequests(filter, ispFilter, search, page);
-  }, [filter, ispFilter, page]); // page already resets when filter/isp changes
+  }, [filter, ispFilter, page]);
 
-  // Debounce search separately so typing doesn't fire on every keystroke
   const handleSearchChange = (val) => {
     setSearch(val);
     clearTimeout(debounceRef.current);
@@ -74,27 +74,59 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-6 md:p-10">
-      <div className="max-w-6xl mx-auto">
-        <header className="flex justify-between items-center mb-10 bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-lg">
+    <div className={`min-h-screen p-6 md:p-10 relative overflow-hidden transition-colors duration-300 ${
+      theme === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
+    }`}>
+      {/* Background glow decorator */}
+      <div className={`absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full blur-[120px] pointer-events-none transition-all duration-300 ${
+        theme === 'dark' ? 'bg-emerald-950/10' : 'bg-emerald-100/15'
+      }`}></div>
+
+      <div className="max-w-6xl mx-auto relative z-10">
+        {/* Header Block */}
+        <header className={`flex justify-between items-center mb-10 p-5 rounded-2xl border transition-all duration-305 ${
+          theme === 'dark' ? 'bg-slate-900/50 border-slate-800 shadow-slate-950/20' : 'bg-white border-slate-200 shadow-sm'
+        } backdrop-blur-md`}>
           <div>
-            <h1 className="text-2xl font-bold text-amber-400">Admin Portal</h1>
-            <p className="text-slate-400 text-sm">Manage Data Requests</p>
+            <h1 className="text-2xl font-black text-emerald-500">
+              Admin Portal
+            </h1>
+            <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Manage Subscriber Data Requests</p>
           </div>
-          <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-red-500/80 rounded-lg transition-all">
-            <LogOut className="w-4 h-4" /> Logout
-          </button>
+          <div className="flex items-center gap-3">
+            <button 
+              type="button"
+              onClick={toggleTheme} 
+              className={`p-2.5 rounded-xl border transition-all active:scale-90 ${
+                theme === 'dark' 
+                  ? 'border-slate-800 bg-slate-900/40 hover:bg-slate-900 text-amber-400' 
+                  : 'border-slate-200 bg-white hover:bg-slate-100 text-slate-700 shadow-sm'
+              }`}
+              aria-label="Toggle Theme"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+            <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 bg-red-650 hover:bg-red-600 text-white rounded-xl text-xs font-bold transition-all shadow-md">
+              <LogOut className="w-4 h-4" /> Logout
+            </button>
+          </div>
         </header>
 
-        <div className="bg-slate-800 rounded-2xl p-6 shadow-xl border border-slate-700">
+        {/* Request List Panel */}
+        <div className={`p-6 rounded-3xl border shadow-xl transition-all duration-300 ${
+          theme === 'dark' ? 'bg-slate-900 border-slate-800 shadow-slate-950/20 backdrop-blur-md' : 'bg-white border-slate-200 shadow-sm'
+        }`}>
           <div className="flex flex-col gap-4 mb-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">All Requests</h2>
-              <span className="text-sm text-slate-400">{total} total</span>
+              <h2 className="text-lg font-bold flex items-center gap-2">All Requests</h2>
+              <span className={`text-xs font-semibold px-3 py-1 rounded-full ${theme === 'dark' ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-650'}`}>
+                {total} total
+              </span>
             </div>
 
-            {/* Search + ISP Filter Row */}
+            {/* Filters Row */}
             <div className="flex flex-col sm:flex-row gap-3">
+              {/* Search Box */}
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 <input
@@ -102,15 +134,25 @@ export default function AdminDashboard() {
                   placeholder="Search by phone or username…"
                   value={search}
                   onChange={e => handleSearchChange(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-slate-900/60 border border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/60 text-white placeholder-slate-500"
+                  className={`w-full pl-9 pr-4 py-2.5 rounded-xl border outline-none transition-all text-xs font-semibold ${
+                    theme === 'dark' 
+                      ? 'bg-slate-950/60 border-slate-800 text-white focus:border-emerald-500' 
+                      : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-emerald-500 shadow-inner'
+                  }`}
                 />
               </div>
+
+              {/* ISP Selector filter */}
               <div className="relative">
                 <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 <select
                   value={ispFilter}
                   onChange={e => setIspFilter(e.target.value)}
-                  className="pl-9 pr-4 py-2 bg-slate-900/60 border border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/60 text-white appearance-none cursor-pointer"
+                  className={`pl-9 pr-8 py-2.5 rounded-xl border outline-none transition-all text-xs font-bold appearance-none cursor-pointer ${
+                    theme === 'dark' 
+                      ? 'bg-slate-950 border-slate-800 text-white focus:border-emerald-500' 
+                      : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-emerald-500'
+                  }`}
                 >
                   {ISP_OPTIONS.map(o => (
                     <option key={o} value={o}>{o || 'All Networks'}</option>
@@ -119,21 +161,31 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Status Tabs */}
+            {/* Status Button Filter */}
             <div className="flex gap-2">
               {['ALL', 'pending', 'treated'].map(f => (
-                <button key={f} onClick={() => setFilter(f)}
-                  className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all capitalize ${f === filter ? 'bg-amber-500 text-slate-900' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}>
+                <button 
+                  key={f} 
+                  onClick={() => setFilter(f)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all capitalize ${
+                    f === filter 
+                      ? 'bg-emerald-605 text-white shadow-sm' 
+                      : theme === 'dark'
+                        ? 'bg-slate-950 text-slate-400 hover:bg-slate-900 border border-slate-800'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
                   {f}
                 </button>
               ))}
             </div>
           </div>
 
+          {/* Data Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-700 text-slate-400">
+                <tr className={`border-b text-xs uppercase tracking-wider font-semibold ${theme === 'dark' ? 'border-slate-800 text-slate-400' : 'border-slate-200 text-slate-500'}`}>
                   <th className="py-3 px-2">ID</th>
                   <th className="py-3 px-2">User</th>
                   <th className="py-3 px-2">Network</th>
@@ -144,57 +196,88 @@ export default function AdminDashboard() {
                   <th className="py-3 px-2 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-800/10">
                 {requests.map(req => (
-                  <tr key={req.id} className="border-b border-slate-700/50 hover:bg-slate-700/30">
-                    <td className="py-4 px-2 text-slate-400">#{req.id}</td>
-                    <td className="py-4 px-2 font-medium">{req.subscriberName || <span className="text-slate-500 italic">Guest</span>}</td>
-                    <td className="py-4 px-2 font-bold text-amber-300">{req.isp}</td>
-                    <td className="py-4 px-2">{req.phoneNumber}</td>
-                    <td className="py-4 px-2">{req.dataBundle} (₦{req.amount})</td>
+                  <tr key={req.id} className={`border-b transition-colors ${
+                    theme === 'dark' ? 'border-slate-800/40 hover:bg-slate-900/30' : 'border-slate-200/50 hover:bg-slate-50'
+                  }`}>
+                    <td className={`py-4 px-2 text-xs font-mono ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>#{req.id}</td>
+                    <td className="py-4 px-2 text-xs font-bold">{req.subscriberName || <span className="text-slate-500 italic">Guest</span>}</td>
                     <td className="py-4 px-2">
-                      {req.reference
-                        ? <span className="font-mono text-xs text-slate-400 truncate max-w-[100px] block" title={req.reference}>{req.reference.slice(0, 12)}…</span>
-                        : <span className="text-slate-600 italic text-xs">—</span>}
+                      <div className="flex items-center gap-2">
+                        <NetworkLogo network={req.isp} className="w-6 h-6" />
+                        <span className="font-bold text-xs">{req.isp}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-2 text-xs font-semibold">{req.phoneNumber}</td>
+                    <td className="py-4 px-2 text-xs font-bold text-slate-650">
+                      <span className={`${theme === 'dark' ? 'text-slate-200' : 'text-slate-800'}`}>{req.dataBundle}</span>
+                      <span className="text-emerald-500 ml-1.5 font-extrabold">₦{req.amount.toLocaleString()}</span>
                     </td>
                     <td className="py-4 px-2">
-                      <span className={`px-2 py-1 text-xs font-semibold rounded capitalize ${req.status === 'treated' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                      {req.reference
+                        ? <span className={`font-mono text-[10px] truncate max-w-[80px] block ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`} title={req.reference}>{req.reference.slice(0, 10)}…</span>
+                        : <span className="text-slate-500 italic text-[10px]">—</span>}
+                    </td>
+                    <td className="py-4 px-2">
+                      <span className={`px-2.5 py-1 text-[10px] font-bold rounded-full border ${
+                        req.status === 'treated' 
+                          ? 'bg-emerald-500/10 text-emerald-555 border-emerald-500/20' 
+                          : 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20'
+                      }`}>
                         {req.status}
                       </span>
                     </td>
                     <td className="py-4 px-2 text-right">
                       {req.status === 'pending' ? (
-                        <button onClick={() => handleTreat(req.id)} disabled={loading}
-                          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-semibold flex items-center gap-2 ml-auto">
-                          <CheckCircle className="w-4 h-4" /> Mark Treated
+                        <button 
+                          onClick={() => handleTreat(req.id)} 
+                          disabled={loading}
+                          className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-550 rounded-xl text-xs font-bold text-white flex items-center gap-1.5 ml-auto transition-all active:scale-95 shadow-sm shadow-emerald-550/10"
+                        >
+                          <CheckCircle className="w-3.5 h-3.5" /> Mark Treated
                         </button>
                       ) : (
-                        <span className="text-slate-500 text-sm italic">Treated by Admin {req.treatedBy}</span>
+                        <span className="text-slate-500 text-xs italic">By Admin {req.treatedBy}</span>
                       )}
                     </td>
                   </tr>
                 ))}
                 {requests.length === 0 && (
-                  <tr><td colSpan="7" className="text-center py-6 text-slate-500">No requests match this filter.</td></tr>
+                  <tr>
+                    <td colSpan="8" className="text-center py-10 text-slate-500 text-sm italic">
+                      No customer requests match this filter.
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>
           </div>
 
-          {/* Pagination */}
+          {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-700">
-              <p className="text-sm text-slate-400">
-                Page {page} of {totalPages} &middot; {total} total
+            <div className={`flex items-center justify-between mt-4 pt-4 border-t ${theme === 'dark' ? 'border-slate-800/60' : 'border-slate-200'}`}>
+              <p className="text-xs text-slate-400">
+                Page {page} of {totalPages} &middot; {total} requests
               </p>
               <div className="flex gap-2">
-                <button onClick={() => setPage(p => p - 1)} disabled={page <= 1}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg text-sm transition-colors">
-                  <ChevronLeft className="w-4 h-4" /> Prev
+                <button 
+                  onClick={() => setPage(p => p - 1)} 
+                  disabled={page <= 1}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-all disabled:opacity-40 ${
+                    theme === 'dark' ? 'bg-slate-900 hover:bg-slate-800 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" /> Prev
                 </button>
-                <button onClick={() => setPage(p => p + 1)} disabled={page >= totalPages}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg text-sm transition-colors">
-                  Next <ChevronRight className="w-4 h-4" />
+                <button 
+                  onClick={() => setPage(p => p + 1)} 
+                  disabled={page >= totalPages}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-all disabled:opacity-40 ${
+                    theme === 'dark' ? 'bg-slate-900 hover:bg-slate-800 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  Next <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>

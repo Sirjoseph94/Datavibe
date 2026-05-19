@@ -234,6 +234,7 @@ export declare const ModelName: {
     readonly IspBundle: "IspBundle";
     readonly Request: "Request";
     readonly User: "User";
+    readonly PaymentGateway: "PaymentGateway";
 };
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
 export interface TypeMapCb<GlobalOmitOptions = {}> extends runtime.Types.Utils.Fn<{
@@ -246,7 +247,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         omit: GlobalOmitOptions;
     };
     meta: {
-        modelProps: "ispBundle" | "request" | "user";
+        modelProps: "ispBundle" | "request" | "user" | "paymentGateway";
         txIsolationLevel: TransactionIsolationLevel;
     };
     model: {
@@ -472,6 +473,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
                 };
             };
         };
+        PaymentGateway: {
+            payload: Prisma.$PaymentGatewayPayload<ExtArgs>;
+            fields: Prisma.PaymentGatewayFieldRefs;
+            operations: {
+                findUnique: {
+                    args: Prisma.PaymentGatewayFindUniqueArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentGatewayPayload> | null;
+                };
+                findUniqueOrThrow: {
+                    args: Prisma.PaymentGatewayFindUniqueOrThrowArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentGatewayPayload>;
+                };
+                findFirst: {
+                    args: Prisma.PaymentGatewayFindFirstArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentGatewayPayload> | null;
+                };
+                findFirstOrThrow: {
+                    args: Prisma.PaymentGatewayFindFirstOrThrowArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentGatewayPayload>;
+                };
+                findMany: {
+                    args: Prisma.PaymentGatewayFindManyArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentGatewayPayload>[];
+                };
+                create: {
+                    args: Prisma.PaymentGatewayCreateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentGatewayPayload>;
+                };
+                createMany: {
+                    args: Prisma.PaymentGatewayCreateManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                createManyAndReturn: {
+                    args: Prisma.PaymentGatewayCreateManyAndReturnArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentGatewayPayload>[];
+                };
+                delete: {
+                    args: Prisma.PaymentGatewayDeleteArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentGatewayPayload>;
+                };
+                update: {
+                    args: Prisma.PaymentGatewayUpdateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentGatewayPayload>;
+                };
+                deleteMany: {
+                    args: Prisma.PaymentGatewayDeleteManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                updateMany: {
+                    args: Prisma.PaymentGatewayUpdateManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                updateManyAndReturn: {
+                    args: Prisma.PaymentGatewayUpdateManyAndReturnArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentGatewayPayload>[];
+                };
+                upsert: {
+                    args: Prisma.PaymentGatewayUpsertArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentGatewayPayload>;
+                };
+                aggregate: {
+                    args: Prisma.PaymentGatewayAggregateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.AggregatePaymentGateway>;
+                };
+                groupBy: {
+                    args: Prisma.PaymentGatewayGroupByArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.PaymentGatewayGroupByOutputType>[];
+                };
+                count: {
+                    args: Prisma.PaymentGatewayCountArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.PaymentGatewayCountAggregateOutputType> | number;
+                };
+            };
+        };
     };
 } & {
     other: {
@@ -537,6 +612,17 @@ export declare const UserScalarFieldEnum: {
     readonly createdAt: "createdAt";
 };
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum];
+export declare const PaymentGatewayScalarFieldEnum: {
+    readonly id: "id";
+    readonly name: "name";
+    readonly displayName: "displayName";
+    readonly isActive: "isActive";
+    readonly isDefault: "isDefault";
+    readonly config: "config";
+    readonly createdAt: "createdAt";
+    readonly updatedAt: "updatedAt";
+};
+export type PaymentGatewayScalarFieldEnum = (typeof PaymentGatewayScalarFieldEnum)[keyof typeof PaymentGatewayScalarFieldEnum];
 export declare const SortOrder: {
     readonly asc: "asc";
     readonly desc: "desc";
@@ -587,6 +673,10 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>;
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>;
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -684,6 +774,7 @@ export type GlobalOmitConfig = {
     ispBundle?: Prisma.IspBundleOmit;
     request?: Prisma.RequestOmit;
     user?: Prisma.UserOmit;
+    paymentGateway?: Prisma.PaymentGatewayOmit;
 };
 export type LogLevel = 'info' | 'query' | 'warn' | 'error';
 export type LogDefinition = {

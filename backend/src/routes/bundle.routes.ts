@@ -9,8 +9,8 @@ const router = Router();
 // Public route to get bundles
 router.get('/', getBundles);
 
-// Secured admin routes for modifying bundles
-router.use(authenticateToken, requireRole(['ADMIN', 'SUPER_ADMIN']));
+// Secured super admin routes for modifying bundles
+router.use(authenticateToken, requireRole(['SUPER_ADMIN']));
 router.post('/', validateRequest(createBundleSchema), createBundle);
 router.put('/:id', validateRequest(updateBundleSchema), updateBundle);
 router.delete('/:id', validateRequest(deleteBundleSchema), deleteBundle);

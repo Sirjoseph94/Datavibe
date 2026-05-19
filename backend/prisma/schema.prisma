@@ -47,3 +47,17 @@ model User {
 
   @@map("Users")
 }
+
+model PaymentGateway {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  displayName String
+  isActive    Boolean   @default(true)
+  isDefault   Boolean   @default(false)
+  config      String?   
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @default(now())
+
+  @@map("PaymentGateways")
+}
+

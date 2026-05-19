@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { prisma } from '../config/db';
+import { prisma } from '../config/db.js';
 import logger from '../config/logger.js';
 export const getAdmins = async (req, res) => {
     try {

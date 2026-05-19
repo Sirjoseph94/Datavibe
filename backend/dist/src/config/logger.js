@@ -1,6 +1,7 @@
 import pino from 'pino';
+import { config } from './index.js';
 const logger = pino({
-    level: process.env.LOG_LEVEL || 'debug',
+    level: config.logLevel,
     transport: {
         target: 'pino-pretty',
         options: {

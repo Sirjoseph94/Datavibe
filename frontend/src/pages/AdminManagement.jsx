@@ -1,10 +1,10 @@
-import { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { Loader2, ArrowLeft, Plus, Edit2, Trash2, Shield, X, Save } from 'lucide-react';
+import { Loader2, ArrowLeft, Plus, Edit2, Trash2, Shield, X, Save, Sun, Moon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function AdminManagement() {
-  const { user } = useContext(AuthContext);
+  const { user, theme, toggleTheme } = useContext(AuthContext);
   const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -25,7 +25,11 @@ export default function AdminManagement() {
       });
       const data = await res.json();
       setAdmins(data);
-    } catch (err) { console.error(err); } finally { setLoading(false); }
+    } catch (err) { 
+      console.error(err); 
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   const openAddModal = () => {
@@ -53,7 +57,9 @@ export default function AdminManagement() {
       });
       if (!res.ok) throw new Error('Failed to delete admin');
       fetchAdmins();
-    } catch (e) { alert(e.message); }
+    } catch (e) { 
+      alert(e.message); 
+    }
   };
 
   const handleSave = async (e) => {
@@ -92,52 +98,112 @@ export default function AdminManagement() {
     }
   };
 
-  if (loading) return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white"><Loader2 className="animate-spin w-8 h-8" /></div>;
+  if (loading) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center transition-colors duration-305 ${
+        theme === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
+      }`}>
+        <Loader2 className="animate-spin w-8 h-8 text-emerald-500" />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-6 md:p-10 relative overflow-hidden">
+    <div className={`min-h-screen p-6 md:p-10 relative overflow-hidden transition-colors duration-300 ${
+      theme === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
+    }`}>
+      {/* Background decoration */}
+      <div className={`absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full blur-[120px] pointer-events-none transition-all duration-300 ${
+        theme === 'dark' ? 'bg-emerald-950/10' : 'bg-emerald-100/10'
+      }`}></div>
+
       <div className="max-w-5xl mx-auto relative z-10">
-        <header className="flex justify-between items-center mb-10 bg-slate-800/80 p-5 rounded-2xl border border-slate-700 shadow-xl">
+        {/* Header Block */}
+        <header className={`flex justify-between items-center mb-10 p-5 rounded-2xl border transition-all duration-305 ${
+          theme === 'dark' ? 'bg-slate-900/50 border-slate-800 shadow-slate-950/20' : 'bg-white border-slate-200 shadow-sm'
+        } backdrop-blur-md`}>
           <div className="flex items-center gap-4">
-            <Link to="/super-admin" className="p-2 hover:bg-slate-700 rounded-lg transition-colors">
-              <ArrowLeft className="w-6 h-6" />
+            <Link to="/super-admin" className={`p-2.5 rounded-xl border transition-colors ${
+              theme === 'dark' ? 'border-slate-800 hover:bg-slate-900/50 text-slate-400 hover:text-white' : 'border-slate-200 hover:bg-slate-100 text-slate-650 hover:text-slate-900 bg-white shadow-sm'
+            }`}>
+              <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold flex items-center gap-3"><Shield className="text-indigo-400"/> Manage Admins</h1>
-              <p className="text-slate-400 text-sm mt-1">Create, update, or remove Admin accounts</p>
+              <h1 className="text-2xl font-black text-emerald-500">
+                Manage Admins
+              </h1>
+              <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Create, update, or remove Admin accounts</p>
             </div>
           </div>
-          <button onClick={openAddModal} className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all font-semibold shadow-lg">
-            <Plus className="w-5 h-5" /> Add Admin
-          </button>
+          
+          <div className="flex items-center gap-3">
+            <button 
+              type="button"
+              onClick={toggleTheme} 
+              className={`p-2.5 rounded-xl border transition-all active:scale-90 ${
+                theme === 'dark' 
+                  ? 'border-slate-800 bg-slate-900/40 hover:bg-slate-900 text-amber-400' 
+                  : 'border-slate-200 bg-white hover:bg-slate-100 text-slate-700 shadow-sm'
+              }`}
+              aria-label="Toggle Theme"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+            <button onClick={openAddModal} className="flex items-center gap-1.5 px-4 py-2.5 bg-emerald-605 hover:bg-emerald-550 text-white rounded-xl text-xs font-bold transition-all shadow-md active:scale-95">
+              <Plus className="w-4.5 h-4.5" /> Add Admin
+            </button>
+          </div>
         </header>
 
-        <div className="bg-slate-800/60 backdrop-blur-xl rounded-3xl p-8 border border-slate-700 shadow-2xl">
+        {/* Admins List Panel */}
+        <div className={`p-6 rounded-3xl border shadow-xl transition-all duration-300 ${
+          theme === 'dark' ? 'bg-slate-900 border-slate-800 shadow-slate-950/20 backdrop-blur-md' : 'bg-white border-slate-200 shadow-sm'
+        }`}>
           {admins.length === 0 ? (
-            <div className="text-center py-10 text-slate-400">No admins found. Click 'Add Admin' to create one.</div>
+            <div className="text-center py-10 text-slate-500 italic text-sm">No administrators registered. Create one to begin.</div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left">
+              <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-700 text-slate-400 text-sm">
-                    <th className="pb-4 font-medium">ID</th>
-                    <th className="pb-4 font-medium">Username</th>
-                    <th className="pb-4 font-medium">Joined</th>
-                    <th className="pb-4 font-medium text-right">Actions</th>
+                  <tr className={`border-b text-xs uppercase tracking-wider font-semibold ${theme === 'dark' ? 'border-slate-800 text-slate-400' : 'border-slate-200 text-slate-500'}`}>
+                    <th className="pb-4 font-semibold">ID</th>
+                    <th className="pb-4 font-semibold">Username</th>
+                    <th className="pb-4 font-semibold">Date Created</th>
+                    <th className="pb-4 font-semibold text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-700/50">
+                <tbody className="divide-y divide-slate-800/10">
                   {admins.map(a => (
-                    <tr key={a.id} className="hover:bg-slate-700/20 transition-colors">
-                      <td className="py-4 text-slate-300">#{a.id}</td>
-                      <td className="py-4 font-semibold text-lg">{a.username}</td>
-                      <td className="py-4 text-slate-400">{new Date(a.createdAt).toLocaleDateString()}</td>
-                      <td className="py-4 flex justify-end gap-3">
-                        <button onClick={() => openEditModal(a)} className="p-2 bg-slate-700/50 text-blue-400 hover:bg-blue-500/20 hover:text-blue-300 rounded-lg transition-colors" title="Edit Admin">
-                          <Edit2 className="w-5 h-5" />
+                    <tr key={a.id} className={`border-b transition-colors ${
+                      theme === 'dark' ? 'border-slate-800/40 hover:bg-slate-900/30' : 'border-slate-200/50 hover:bg-slate-50'
+                    }`}>
+                      <td className={`py-4 text-xs font-mono ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>#{a.id}</td>
+                      <td className="py-4 font-bold text-sm">{a.username}</td>
+                      <td className={`py-4 text-xs font-mono ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                        {new Date(a.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="py-4 flex justify-end gap-2.5">
+                        <button 
+                          onClick={() => openEditModal(a)} 
+                          className={`p-2 border rounded-xl transition-colors ${
+                            theme === 'dark' 
+                              ? 'border-slate-800 bg-slate-900/40 text-blue-400 hover:bg-blue-500/10' 
+                              : 'border-slate-200 bg-slate-50 text-blue-600 hover:bg-blue-50'
+                          }`} 
+                          title="Edit Admin"
+                        >
+                          <Edit2 className="w-4 h-4" />
                         </button>
-                        <button onClick={() => handleDelete(a.id)} className="p-2 bg-slate-700/50 text-red-400 hover:bg-red-500/20 hover:text-red-300 rounded-lg transition-colors" title="Delete Admin">
-                          <Trash2 className="w-5 h-5" />
+                        <button 
+                          onClick={() => handleDelete(a.id)} 
+                          className={`p-2 border rounded-xl transition-colors ${
+                            theme === 'dark' 
+                              ? 'border-slate-800 bg-slate-900/40 text-red-400 hover:bg-red-500/10' 
+                              : 'border-slate-200 bg-slate-50 text-red-600 hover:bg-red-50'
+                          }`} 
+                          title="Delete Admin"
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </td>
                     </tr>
@@ -149,49 +215,71 @@ export default function AdminManagement() {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Admin Creator/Editor Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-800 w-full max-w-md rounded-3xl border border-slate-600 shadow-2xl overflow-hidden">
-            <div className="flex justify-between items-center p-6 border-b border-slate-700">
-              <h3 className="text-xl font-bold">{editAdmin ? 'Edit Admin' : 'Create New Admin'}</h3>
-              <button onClick={() => setModalOpen(false)} className="text-slate-400 hover:text-white"><X className="w-6 h-6"/></button>
+        <div className="fixed inset-0 bg-black/65 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className={`w-full max-w-md border rounded-3xl shadow-2xl overflow-hidden transition-all transform animate-in zoom-in-95 duration-150 ${
+            theme === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+          }`}>
+            <div className={`flex justify-between items-center p-6 border-b ${theme === 'dark' ? 'border-slate-800' : 'border-slate-200'}`}>
+              <h3 className="text-lg font-bold">{editAdmin ? 'Edit Admin Account' : 'Register New Admin'}</h3>
+              <button onClick={() => setModalOpen(false)} className={`hover:text-red-500 transition-colors ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}><X className="w-5 h-5"/></button>
             </div>
             
             <form onSubmit={handleSave} className="p-6">
-              {error && <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 text-red-400 rounded-xl text-sm">{error}</div>}
+              {error && <div className="mb-4 p-3.5 bg-red-500/10 border border-red-500/30 text-red-500 rounded-xl text-xs font-semibold">{error}</div>}
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1">Username</label>
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-2 text-left ${theme === 'dark' ? 'text-slate-400' : 'text-slate-550'}`}>Username</label>
                   <input
                     type="text"
                     required
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full bg-slate-900/50 border border-slate-600 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
-                    placeholder="e.g. jdoe_admin"
+                    className={`w-full px-4 py-3 rounded-xl border outline-none transition-all font-medium text-sm ${
+                      theme === 'dark' 
+                        ? 'bg-slate-950/70 border-slate-800 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500' 
+                        : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500'
+                    }`}
+                    placeholder="e.g., jdoe_admin"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1">Password {editAdmin && <span className="text-xs italic">(leave blank to keep current)</span>}</label>
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-2 text-left ${theme === 'dark' ? 'text-slate-400' : 'text-slate-550'}`}>
+                    Password {editAdmin && <span className="text-[10px] lowercase font-normal italic">(leave blank to keep current)</span>}
+                  </label>
                   <input
                     type="password"
                     required={!editAdmin}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-slate-900/50 border border-slate-600 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                    className={`w-full px-4 py-3 rounded-xl border outline-none transition-all font-medium text-sm ${
+                      theme === 'dark' 
+                        ? 'bg-slate-950/70 border-slate-800 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500' 
+                        : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500'
+                    }`}
                     placeholder="Enter secure password"
                   />
                 </div>
               </div>
 
               <div className="mt-8 flex justify-end gap-3">
-                <button type="button" onClick={() => setModalOpen(false)} className="px-5 py-2.5 rounded-xl font-medium text-slate-300 hover:bg-slate-700 transition-colors">
+                <button 
+                  type="button" 
+                  onClick={() => setModalOpen(false)} 
+                  className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-colors ${
+                    theme === 'dark' ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
                   Cancel
                 </button>
-                <button type="submit" disabled={saving} className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-xl font-medium transition-colors shadow-lg">
-                  {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                <button 
+                  type="submit" 
+                  disabled={saving} 
+                  className="flex items-center gap-1.5 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-550 disabled:opacity-50 rounded-xl text-xs font-bold text-white transition-colors shadow-md active:scale-95"
+                >
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   {editAdmin ? 'Save Changes' : 'Create Admin'}
                 </button>
               </div>

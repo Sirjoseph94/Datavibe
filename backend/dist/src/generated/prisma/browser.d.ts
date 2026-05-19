@@ -17,4 +17,9 @@ export type Request = Prisma.RequestModel;
  *
  */
 export type User = Prisma.UserModel;
+/**
+ * Model PaymentGateway
+ *
+ */
+export type PaymentGateway = Prisma.PaymentGatewayModel;
 //# sourceMappingURL=browser.d.ts.map

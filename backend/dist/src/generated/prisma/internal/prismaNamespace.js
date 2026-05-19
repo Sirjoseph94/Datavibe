@@ -70,7 +70,8 @@ export const AnyNull = runtime.AnyNull;
 export const ModelName = {
     IspBundle: 'IspBundle',
     Request: 'Request',
-    User: 'User'
+    User: 'User',
+    PaymentGateway: 'PaymentGateway'
 };
 /**
  * Enums
@@ -108,6 +109,16 @@ export const UserScalarFieldEnum = {
     password_hash: 'password_hash',
     role: 'role',
     createdAt: 'createdAt'
+};
+export const PaymentGatewayScalarFieldEnum = {
+    id: 'id',
+    name: 'name',
+    displayName: 'displayName',
+    isActive: 'isActive',
+    isDefault: 'isDefault',
+    config: 'config',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
 };
 export const SortOrder = {
     asc: 'asc',

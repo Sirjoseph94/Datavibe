@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../config/db.js';
 import logger from '../config/logger.js';
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_jwt_key_123';
+import { config } from '../config/index.js';
 export const register = async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -34,7 +34,7 @@ export const login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password_hash);
         if (!isMatch)
             return res.status(400).json({ error: 'Invalid credentials' });
-        const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
+        const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, config.jwtSecret, { expiresIn: '24h' });
         res.json({ token, role: user.role, username: user.username, id: user.id });
     }
     catch (error) {

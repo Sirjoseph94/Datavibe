@@ -27,6 +27,7 @@ export const initializePayment = async (req, res) => {
         const amount = selectedBundle.price;
         const subscriberId = req.user ? req.user.id : null;
         const email = req.user ? req.user.username + '@datasub.com' : `guest_${validatedPhone}@datasub.com`;
+        logger.info({ email }, 'Email');
         const response = await fetch('https://api.paystack.co/transaction/initialize', {
             method: 'POST',
             headers: {

@@ -29,6 +29,7 @@ export declare const ModelName: {
     readonly IspBundle: "IspBundle";
     readonly Request: "Request";
     readonly User: "User";
+    readonly PaymentGateway: "PaymentGateway";
 };
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
 export declare const TransactionIsolationLevel: {
@@ -69,6 +70,17 @@ export declare const UserScalarFieldEnum: {
     readonly createdAt: "createdAt";
 };
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum];
+export declare const PaymentGatewayScalarFieldEnum: {
+    readonly id: "id";
+    readonly name: "name";
+    readonly displayName: "displayName";
+    readonly isActive: "isActive";
+    readonly isDefault: "isDefault";
+    readonly config: "config";
+    readonly createdAt: "createdAt";
+    readonly updatedAt: "updatedAt";
+};
+export type PaymentGatewayScalarFieldEnum = (typeof PaymentGatewayScalarFieldEnum)[keyof typeof PaymentGatewayScalarFieldEnum];
 export declare const SortOrder: {
     readonly asc: "asc";
     readonly desc: "desc";

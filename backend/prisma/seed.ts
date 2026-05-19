@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { prisma } from '../dist/config/db';
+import { prisma } from '../src/config/db.js';
 
 const ISP_BUNDLES = [
   { network: 'MTN', size: '1GB', price: 500 },
@@ -69,6 +69,39 @@ async function seed() {
       }
     });
     console.log("Created ADMIN");
+  }
+
+  console.log("Seeding payment gateways...");
+  const gateways = [
+    {
+      name: 'monnify',
+      displayName: 'Monnify',
+      isActive: true,
+      isDefault: true,
+      config: JSON.stringify({
+        apiKey: process.env.MONNIFY_API_KEY || "",
+        secretKey: process.env.MONNIFY_SECRET_KEY || "",
+        contractCode: process.env.MONNIFY_CONTRACT_CODE || "",
+        isSandbox: process.env.MONNIFY_IS_SANDBOX !== 'false'
+      })
+    },
+    {
+      name: 'paystack',
+      displayName: 'Paystack',
+      isActive: true,
+      isDefault: false,
+      config: JSON.stringify({
+        secretKey: process.env.PAYSTACK_SECRET_KEY || ""
+      })
+    }
+  ];
+
+  for (const gw of gateways) {
+    const existing = await prisma.paymentGateway.findUnique({ where: { name: gw.name } });
+    if (!existing) {
+      await prisma.paymentGateway.create({ data: gw });
+      console.log(`Created PaymentGateway: ${gw.displayName}`);
+    }
   }
 
   console.log("Seed complete.");

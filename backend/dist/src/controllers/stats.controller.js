@@ -10,11 +10,11 @@ export const getStats = async (_req, res) => {
             where: { status: 'treated' }
         });
         const topAdminsRaw = await prisma.$queryRaw `
-      SELECT Users.username, COUNT(Requests.id) as handledCount
-      FROM Requests
-      JOIN Users ON Requests.treatedBy = Users.id
-      WHERE Requests.status = 'treated'
-      GROUP BY Users.id
+      SELECT "Users".username, COUNT("Requests".id) as handledCount
+      FROM "Requests"
+      JOIN "Users" ON "Requests"."treatedBy" = "Users"."id"
+      WHERE "Requests"."status" = 'treated'
+      GROUP BY "Users"."id"
       ORDER BY handledCount DESC
       LIMIT 5
     `;

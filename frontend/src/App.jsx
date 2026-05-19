@@ -8,7 +8,9 @@ import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import AdminManagement from './pages/AdminManagement';
+import BundleManagement from './pages/BundleManagement';
 import VerifyPayment from './pages/VerifyPayment';
+import GatewayManagement from './pages/GatewayManagement';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useContext(AuthContext);
@@ -18,9 +20,12 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 };
 
 function App() {
+  const { theme } = useContext(AuthContext);
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+      <div className={`min-h-screen font-sans transition-colors duration-300 ${
+        theme === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
+      }`}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -44,6 +49,16 @@ function App() {
           <Route path="/manage-admins" element={
             <ProtectedRoute allowedRoles={['SUPER_ADMIN']}>
               <AdminManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/manage-bundles" element={
+            <ProtectedRoute allowedRoles={['SUPER_ADMIN']}>
+              <BundleManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/manage-gateways" element={
+            <ProtectedRoute allowedRoles={['SUPER_ADMIN']}>
+              <GatewayManagement />
             </ProtectedRoute>
           } />
         </Routes>

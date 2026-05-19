@@ -148,6 +148,17 @@ export interface PrismaClient<in LogOpts extends Prisma.LogLevel = never, in out
     get user(): Prisma.UserDelegate<ExtArgs, {
         omit: OmitOpts;
     }>;
+    /**
+     * `prisma.paymentGateway`: Exposes CRUD operations for the **PaymentGateway** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more PaymentGateways
+      * const paymentGateways = await prisma.paymentGateway.findMany()
+      * ```
+      */
+    get paymentGateway(): Prisma.PaymentGatewayDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
 }
 export declare function getPrismaClientClass(): PrismaClientConstructor;
 //# sourceMappingURL=class.d.ts.map
