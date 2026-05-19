@@ -1,5 +1,0 @@
-import type { Request, Response, NextFunction } from 'express';
-export declare const authenticateToken: (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined;
-export declare const optionalAuthenticateToken: (req: Request, res: Response, next: NextFunction) => void;
-export declare const requireRole: (roles: string[]) => (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined;
-//# sourceMappingURL=auth.middleware.d.ts.map
